@@ -1,0 +1,125 @@
+% problem 5.3
+clear all
+clc
+m=0.2533; %kip s2 in-1
+k=10; %kips in-1
+tn=1; %s
+wn=6.283; %rd s-1
+z=0.05;% zeta
+c=2*m*wn*z; % damp coef
+dt=0.1;%s
+
+t=0:dt:1;
+
+
+p=10*sin(pi*t/0.6);
+
+h=1;
+
+while(h<=size(t,2) )
+   if t(h)>0.6
+      p(h)=0;
+   end
+   h=h+1;
+end
+
+u=zeros(1,size(t,2));
+%uTheo=zeros(1,size(t,2));
+pcap=zeros(1,size(t,2));
+
+
+u0=0; % initial displacement
+u(1)=u0;
+ud0=0; % initial velocity
+udd0=(p(1)-c*u0-k*u0)/m; 
+um1=(u0-dt*ud0+dt^2*0.5*udd0);
+
+kcap=m/dt^2+c/(2*dt);
+a=m/dt^2-c/(2*dt);
+b=k-2*m/(dt)^2;
+
+pcap(1)=p(1)-a*um1-b*u(1);
+
+for i=2:size(t,2)
+   
+    u(i)=pcap(i-1)/kcap;
+    pcap(i)=p(i)-a*u(i-1)-b*u(i);
+    
+end
+% w=pi/0.6;
+% omg=w/wn;
+% C=(10/k)*((1-omg^2)/((1-omg^2)^2+(2*z*omg)^2));
+% D=(10/k)*((-2*z*omg)/((1-omg^2)^2+(2*z*omg)^2));
+% for k=1:size(t,2)
+%    
+%     uTheo(1,k)=C*sin(w*t(k))+D*cos(w*t(k));
+% end
+uim1=[um1 u(1:(size(t,2)-1))];
+up1=pcap(size(t,2))/kcap;
+uip1=[u(2:(size(t,2))) up1];
+% disp('result = [t;p;uim1;u;pcap;uip1;uTheo]')
+% 
+% result=[t;p;uim1;u;pcap;uip1;uTheo]'
+
+plot(t,u,'*')
+hold on
+
+problem2a=2.1
+syms fA wfA tA wA zA tauA k
+%vA=int((fA*sin(wfA*tauA)*(wA/(k*(1-zA^2)^0.5))*(exp(-zA*wA*(tA-tauA)))*(sin(wA*(tA-tauA)*(1-zA)^0.5))),tauA,0,tA);
+%vA=int((fA*sin(wfA*tauA)*(wA/(k*(1-zA^2)^0.5))*(exp(-zA*wA*(tA-tauA)))*(sin(wA*(tA-tauA)*(1-zA)^0.5))),tauA,0,tA);
+
+vA=int((fA*sin(wfA*tauA/0.6)*(wA/(k*(1-zA^2)^0.5))*(exp(-zA*wA*(tA-tauA)))*(sin(wA*(tA-tauA)*(1-zA^2)^0.5))),tauA,0,tA);
+
+
+k=10;
+fA=10;
+wA=2*3.14;
+zA=0.1;
+wfA=pi;
+tA=0:0.1:1;
+res=eval(vA);
+res;
+
+t=0:0.1:1;
+%figure
+%subplot(1,2,1)
+plot(t,res)
+
+
+simplify(vA);
+pretty(vA)
+
+% 
+% 
+% 
+% f=4*3.14*3.14;
+% 
+% omg=2*pi; %omg -- wA
+% z=0.1; %z -- zA
+% omd=omg*(1-z^2)^0.5; 
+% omf=2*3.14; % omf-- wfA
+% mag=omf/omg;
+% t=0:0.01:5;
+% y=ones(1,size(t,2));
+% c=ones(1,size(t,2));
+% d=ones(1,size(t,2));
+% for i=1:size(t,2)
+%     c(i)=(f/k)*((1-mag^2)/((1-mag^2)^2+(2*z*mag)^2));
+%     d(i)=(f/k)*((-2*z*mag)/((1-mag^2)^2+(2*z*mag)^2));
+%     y(i)=(c(i)*sin(omf*t(i))+d(i)*cos(omf*t(i)));
+%    
+% end
+% 
+% 
+% 
+% subplot(1,2,2)
+% plot(t,y)
+
+disp('result = [t;p;uim1;u;pcap;uip1;uTheo]')
+
+
+result=[t;p;uim1;u;pcap;uip1;res]'
+
+
+
